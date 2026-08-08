@@ -140,10 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="stb_image_resize2.h" />
+    <ClInclude Include="stb_image_write.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="media\test1.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
