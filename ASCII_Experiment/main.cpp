@@ -1,5 +1,4 @@
-// This file contains the 'main' function. Program execution begins and ends there.
-#include <iostream>
+#include <iostream> 
 #include <stdio.h>
 #include <vector>
 #include <string>
@@ -12,15 +11,20 @@
 
 int width, height, channels;
 
-int PosToIndex(int x, int y, int channel)
+int PosToIndex(int x, int y, int channels, int channel)
 {
     return (x * channels + y * width * channels) + channel;
+}
+
+int PosToIndex(int x, int y)
+{
+    return x + (y * width);
 }
 
 int main()
 {
   
-    // Load image
+    // Get image px array
     unsigned char* img = stbi_load("media/test1.jpg", &width, &height, &channels, 0);
 
     if (img == nullptr)
@@ -31,21 +35,58 @@ int main()
     std::cout << "Loaded image with a width of " << width << "px, a height of " << height << "px, and " << channels << " channels.\n";
     
 
-    // Copy image data to new vector
-    const int arrayLength = width * height * channels;
-    std::vector<unsigned char> pixels(arrayLength);
+    // Copy image data to new array
+    const int arrayLength = width * height;
+    unsigned char* greyscaleImg = new unsigned char[arrayLength];
 
-    for (int i = 0; i < arrayLength; i++)
+    int count = 0;
+
+    // Reduce to greyscale
+    for (int i = 0; i < arrayLength * channels; i+=3)
     {
-        pixels[i] = img[i];
+        int totalBrightness = 0;
+
+        for (int j = 0; j < channels; j++)
+        {
+            totalBrightness += img[i + j];    
+        }
+        greyscaleImg[count] = static_cast<unsigned char>(totalBrightness / 3);
+        count++;
     }
-   
-    std::cout << 
-        "R:" << std::to_string(pixels[PosToIndex(700, 439, 0)]) <<
-        " G:" << std::to_string(pixels[PosToIndex(700, 439, 1)]) <<
-        " B:" << std::to_string(pixels[PosToIndex(700, 439, 2)]);
+
+    // Downscale image
+    int factor = 2; // Reduction = factor * factor
+    int sqr = factor * factor;
     
-    stbi_write_png("media/test6.jpg", width, height, 2, img, width * channels);
+    int downscaledLength = arrayLength / sqr;
+    unsigned char* downscaledImg = new unsigned char[downscaledLength];
+
+    int i = 0;
+    int avg = 0;
+
+    for (int y = 0; y < height; y += factor)
+    {   
+        for (int x = 0; x < width; x += factor)
+        {
+            for (int iy = 0; iy < factor; iy++)
+            {
+                for (int ix = 0; ix < factor; ix++)
+                {
+                    avg += PosToIndex(x + ix, y + iy);
+                }
+            }
+
+            if (i % sqr == 0)
+            {
+                downscaledImg[i/sqr] = static_cast<unsigned char>(avg / factor);
+            }
+            i++;
+        }
+    }
+  
+    
+    //stbi_write_png("media/test11.jpg", width, height, 1, greyscaleImg, width);
+    stbi_write_png("media/test18.jpg", width / sqr, height / sqr, 1, downscaledImg, width / sqr * sqr);
 
     stbi_image_free(img);
 
