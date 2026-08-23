@@ -21,6 +21,11 @@ int PosToIndex(int x, int y)
     return x + (y * width);
 }
 
+int PosToIndex(int x, int y, int width)
+{
+    return x + (y * width);
+}
+
 int main()
 {
   
@@ -72,21 +77,25 @@ int main()
             {
                 for (int ix = 0; ix < factor; ix++)
                 {
-                    avg += PosToIndex(x + ix, y + iy);
+                    avg = 0;
+                    avg += greyscaleImg[PosToIndex(x + ix, y + iy, width)];
+                    avg /= sqr;
                 }
             }
+            
+            unsigned char result = static_cast<unsigned char>(avg);
+            downscaledImg[i] = result;
 
-            if (i % sqr == 0)
-            {
-                downscaledImg[i/sqr] = static_cast<unsigned char>(avg / factor);
-            }
             i++;
-        }
+        } 
+        
+        
+
     }
   
     
-    //stbi_write_png("media/test11.jpg", width, height, 1, greyscaleImg, width);
-    stbi_write_png("media/test18.jpg", width / sqr, height / sqr, 1, downscaledImg, width / sqr * sqr);
+    //stbi_write_png("media/test26.jpg", width, height, 1, greyscaleImg, width-100);
+    stbi_write_png("media/test29.jpg", width / factor, height / factor, 1, downscaledImg, width / factor);
 
     stbi_image_free(img);
 
