@@ -1,12 +1,12 @@
 #include <iostream> 
-#include <stdio.h>
-#include <vector>
-#include <string>
+#include <stdio.h> 
+#include <vector> 
+#include <string> 
+#include <unordered_map>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-//#define STBI_WRITE_NO_STDIO
+#define STB_IMAGE_IMPLEMENTATION 
+#include "stb_image.h" 
+#define STB_IMAGE_WRITE_IMPLEMENTATION 
 #include "stb_image_write.h"
 
 int width, height, channels;
@@ -60,14 +60,13 @@ int main()
     }
 
     // Downscale image
-    int factor = 16; // Reduction = factor * factor
+    int factor = 24; // Reduction = factor * factor
     int sqr = factor * factor;
     
     int downscaledLength = arrayLength / sqr;
     unsigned char* downscaledImg = new unsigned char[downscaledLength];
 
     int i = 0;
-    int avg = 0;
 
     int newHeight = 0;
     int newWidth = 0;
@@ -79,33 +78,49 @@ int main()
         for (int x = 0; x < width - factor; x += factor)
         {
             newWidth++;
-            avg = 0;
+            int sum = 0;
             for (int iy = 0; iy < factor; iy++)
             {
                 for (int ix = 0; ix < factor; ix++)
                 {
                     int index = PosToIndex(x + ix, y + iy);
 
-                    avg += greyscaleImg[index];
-                    avg /= factor / 8;
+                    sum += greyscaleImg[index];
+                    sum *= 0.5; // Why tf does halving it give the correct brightness? thats not how averages work
                 }
             }
 
-            //if (avg > 255) avg = 255;
             
-            unsigned char result = static_cast<unsigned char>(avg);
+            unsigned char result = static_cast<unsigned char>(sum);
             downscaledImg[i] = result;
 
             i++;
         } 
-        
-        
-
     }
-  
+    std::unordered_map<char, char> CharMap
+    {
+        { 0, ' ' },
+        { 1, '.' },
+        { 2, '-' },
+        { 3, '+' },
+        { 4, '*' },
+        { 5, '#' },
+        { 6, '&' },
+        { 7, '@' },
+    };
+
+    std::string output;
+
+
+    for (int i = 0; i < downscaledLength; i++)
+    {
+        char px = downscaledImg[i];
+        output += CharMap[px / 16];
+    }
     
-    //stbi_write_png("media/test26.jpg", width, height, 1, greyscaleImg, width-100);
-    stbi_write_png("media/test34.jpg", newWidth, newHeight, 1, downscaledImg, newWidth);
+    std::cout << output;
+ 
+    //stbi_write_png("media/test40.jpg", newWidth, newHeight, 1, downscaledImg, newWidth);
 
     stbi_image_free(img);
 
