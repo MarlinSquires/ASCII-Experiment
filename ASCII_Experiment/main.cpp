@@ -60,7 +60,7 @@ int main()
     }
 
     // Downscale image
-    int factor = 2; // Reduction = factor * factor
+    int factor = 16; // Reduction = factor * factor
     int sqr = factor * factor;
     
     int downscaledLength = arrayLength / sqr;
@@ -69,19 +69,29 @@ int main()
     int i = 0;
     int avg = 0;
 
-    for (int y = 0; y < height; y += factor)
+    int newHeight = 0;
+    int newWidth = 0;
+
+    for (int y = 0; y < height - factor; y += factor)
     {   
-        for (int x = 0; x < width; x += factor)
+        newHeight++;
+        newWidth = 0;
+        for (int x = 0; x < width - factor; x += factor)
         {
+            newWidth++;
+            avg = 0;
             for (int iy = 0; iy < factor; iy++)
             {
                 for (int ix = 0; ix < factor; ix++)
                 {
-                    avg = 0;
-                    avg += greyscaleImg[PosToIndex(x + ix, y + iy, width)];
-                    avg /= sqr;
+                    int index = PosToIndex(x + ix, y + iy);
+
+                    avg += greyscaleImg[index];
+                    avg /= factor / 8;
                 }
             }
+
+            //if (avg > 255) avg = 255;
             
             unsigned char result = static_cast<unsigned char>(avg);
             downscaledImg[i] = result;
@@ -95,7 +105,7 @@ int main()
   
     
     //stbi_write_png("media/test26.jpg", width, height, 1, greyscaleImg, width-100);
-    stbi_write_png("media/test29.jpg", width / factor, height / factor, 1, downscaledImg, width / factor);
+    stbi_write_png("media/test34.jpg", newWidth, newHeight, 1, downscaledImg, newWidth);
 
     stbi_image_free(img);
 
